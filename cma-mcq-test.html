@@ -577,8 +577,24 @@
     .past-paper-buttons button {
       min-height: 42px;
       padding: 0 10px;
+      border: 1px solid var(--subject-border, var(--line));
+      color: var(--subject-color, var(--blue));
+      background: linear-gradient(180deg, var(--subject-soft, #ffffff), #ffffff);
       font-size: 13px;
       font-weight: 900;
+      box-shadow: inset 4px 0 0 var(--subject-color, var(--blue));
+    }
+
+    .past-paper-buttons button:hover {
+      background: var(--subject-soft, #eef5ff);
+      color: var(--subject-color, var(--blue));
+      box-shadow: inset 4px 0 0 var(--subject-color, var(--blue)), 0 8px 18px rgba(20, 32, 51, .08);
+    }
+
+    .past-paper-buttons button:disabled {
+      color: var(--muted);
+      background: #f2f5f8;
+      box-shadow: none;
     }
 
     .syllabus-grid {
@@ -20537,7 +20553,7 @@
           </div>
           <div class="past-paper-buttons">
             ${attemptTests.map(test => `
-              <button type="button" data-past-paper="${test.id}" ${test.questions.length ? "" : "disabled"}>${escapeHtml(test.paper)}</button>
+              <button type="button" style="${subjectColorVars(test.subject)}" data-past-paper="${test.id}" ${test.questions.length ? "" : "disabled"}>${escapeHtml(test.paper)}</button>
             `).join("")}
           </div>
         </div>
