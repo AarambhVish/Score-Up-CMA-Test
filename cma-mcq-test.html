@@ -660,6 +660,48 @@
       font-weight: 750;
     }
 
+    .source-paper-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .source-paper-card {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: inset 4px 0 0 var(--blue);
+    }
+
+    .source-paper-card strong {
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 950;
+    }
+
+    .source-paper-card span {
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 750;
+    }
+
+    .source-paper-card a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 0 10px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
     .syllabus-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -2543,6 +2585,13 @@
             <label>Mock Test Name
               <input id="bankMockName" placeholder="Mock Test 1, Revision Mock, Full Syllabus Mock">
             </label>
+          </div>
+          <div class="admin-box full stack">
+            <div>
+              <h2>Foundation Paper Sources</h2>
+              <p class="small">Open the attempt page, download the paper PDF, then paste the MCQs below for admin review and saving.</p>
+            </div>
+            <div class="source-paper-grid" id="gscFoundationSourceList"></div>
           </div>
           <div class="admin-box full stack">
             <div>
@@ -19809,6 +19858,7 @@
       bankCategory: document.querySelector("#bankCategory"),
       bankAttempt: document.querySelector("#bankAttempt"),
       bankMockName: document.querySelector("#bankMockName"),
+      gscFoundationSourceList: document.querySelector("#gscFoundationSourceList"),
       bulkQuestionText: document.querySelector("#bulkQuestionText"),
       bulkAssetNotes: document.querySelector("#bulkAssetNotes"),
       bulkImagePasteZone: document.querySelector("#bulkImagePasteZone"),
@@ -20581,6 +20631,36 @@
         ]
       }
     };
+    const gyanSagarFoundationSources = [
+      {
+        attempt: "June 2026",
+        url: "https://www.gyansagarclasses.com/cma-foundation-june-2026-exam-paper-solutions/"
+      },
+      {
+        attempt: "Dec 2025",
+        url: "https://www.gyansagarclasses.com/cma-foundation-december-2025-exam-paper-solutions/"
+      },
+      {
+        attempt: "June 2025",
+        url: "https://www.gyansagarclasses.com/cma-foundation-june-2025-exam-paper-solutions/"
+      },
+      {
+        attempt: "Dec 2024",
+        url: "https://www.gyansagarclasses.com/cma-foundation-december-2024-exam-paper-solutions/"
+      },
+      {
+        attempt: "June 2024",
+        url: "https://www.gyansagarclasses.com/cma-foundation-june-2024-exam-paper-solutions/"
+      },
+      {
+        attempt: "Dec 2023",
+        url: "https://www.gyansagarclasses.com/cma-foundation-december-2023-exam-question-paper-solutions/"
+      },
+      {
+        attempt: "July 2023",
+        url: "https://www.gyansagarclasses.com/cma-foundation-july-2023-exam-paper-solutions/"
+      }
+    ];
     const defaultCloudEndpoint = "https://script.google.com/macros/s/AKfycbxDL2lcwwspDVrEWLprEvX9I07QSKOJNYDZuiIEPm0n59eik18meDzzbz1ZiTwEGmcX/exec";
     const rememberedStudentKey = "cmaRememberedStudent";
     const studentPageKey = "cmaStudentPage";
@@ -21670,6 +21750,7 @@
       renderAdminProgress();
       renderAdminScheduledTests(schedule);
       renderAdminPastPaperAttempts();
+      renderGyanSagarFoundationSources();
       renderAdminBankReview();
       renderStudentMaster();
     }
@@ -21824,6 +21905,17 @@
       `).join("");
     }
 
+    function renderGyanSagarFoundationSources() {
+      if (!els.gscFoundationSourceList) return;
+      els.gscFoundationSourceList.innerHTML = gyanSagarFoundationSources.map(source => `
+        <div class="source-paper-card">
+          <strong>${escapeHtml(source.attempt)}</strong>
+          <span>Paper 1, Paper 2, Paper 3, Paper 4 available from the source page.</span>
+          <a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">Open Source Page</a>
+        </div>
+      `).join("");
+    }
+
     function switchAdminTab(tabName) {
       els.adminTabs.querySelectorAll("[data-admin-tab]").forEach(tab => {
         tab.classList.toggle("active", tab.dataset.adminTab === tabName);
@@ -21832,6 +21924,7 @@
         panel.classList.toggle("hidden", panel.dataset.adminPanel !== tabName);
       });
       if (tabName === "reviewBank") renderAdminBankReview();
+      if (tabName === "updateBank") renderGyanSagarFoundationSources();
     }
 
     function allPaperNames(level = "All") {
