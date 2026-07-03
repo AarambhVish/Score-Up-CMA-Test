@@ -568,6 +568,19 @@
       gap: 12px;
     }
 
+    .past-paper-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .past-paper-buttons button {
+      min-height: 42px;
+      padding: 0 10px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
     .syllabus-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -1792,6 +1805,7 @@
       .analysis-grid,
       .badge-list,
       .leaderboard-filters,
+      .past-paper-buttons,
       .student-choice,
       .student-dashboard,
       .scheduled-meta,
@@ -20440,6 +20454,13 @@
       "June 2021"
     ];
 
+    const foundationPastPaperGroups = [
+      { label: "Paper 1", subjects: ["P1 - Law", "P1 - BC"] },
+      { label: "Paper 2", subjects: ["P2 - Accounts", "P2 - Costing"] },
+      { label: "Paper 3", subjects: ["P3 - Maths", "P3 - Statistics"] },
+      { label: "Paper 4", subjects: ["P4 - Economics", "P4 - Management"] }
+    ];
+
     const icmaiPastPaperSourceUrl = "https://icmai.in/ClntStudents/Question_Papers_December2025";
     const defaultCloudEndpoint = "https://script.google.com/macros/s/AKfycbxDL2lcwwspDVrEWLprEvX9I07QSKOJNYDZuiIEPm0n59eik18meDzzbz1ZiTwEGmcX/exec";
     const rememberedStudentKey = "cmaRememberedStudent";
@@ -20464,57 +20485,63 @@
           groups[name] ||= [];
           groups[name].push(question);
         });
-      const attemptTests = foundationPastPaperAttempts.map((attempt, index) => {
+      const attemptTests = foundationPastPaperAttempts.flatMap((attempt, index) => {
         const questions = groups[attempt] || [];
-        return {
-          id: `foundation-attempt-${attempt}`.replace(/\W+/g, "-"),
-          name: `${attempt} CMA Foundation Past Paper`,
-          attempt,
-          level: state.activeProfile.level,
-          subject: questions[0]?.subject || "Foundation",
-          questions,
-          scoreable: questions.filter(question => Number.isInteger(question.answer)).length,
-          pendingImport: !questions.length,
-          scheduledDate: attempt
-        };
+        return foundationPastPaperGroups.map((paper, paperIndex) => {
+          const paperQuestions = questions.filter(question => paper.subjects.includes(question.subject));
+          return {
+            id: `foundation-attempt-${attempt}-${paper.label}`.replace(/\W+/g, "-"),
+            name: `${attempt} ${paper.label}`,
+            attempt,
+            paper: paper.label,
+            level: state.activeProfile.level,
+            subject: paper.subjects[0],
+            subjects: paper.subjects,
+            questions: paperQuestions,
+            scheduledDate: attempt
+          };
+        });
       });
       const otherTests = Object.entries(groups)
         .filter(([name]) => !foundationPastPaperAttempts.includes(name))
-        .map(([name, questions], index) => ({
-          id: `past-other-${index}`,
-          name,
-          attempt: name,
-          level: questions[0].level,
-          subject: questions[0].subject,
-          questions,
-          scoreable: questions.filter(question => Number.isInteger(question.answer)).length,
-          pendingImport: false,
-          scheduledDate: name
+        .flatMap(([name, questions], index) => foundationPastPaperGroups.map(paper => {
+          const paperQuestions = questions.filter(question => paper.subjects.includes(question.subject));
+          return {
+            id: `past-other-${index}-${paper.label}`.replace(/\W+/g, "-"),
+            name: `${name} ${paper.label}`,
+            attempt: name,
+            paper: paper.label,
+            level: questions[0].level,
+            subject: paper.subjects[0],
+            subjects: paper.subjects,
+            questions: paperQuestions,
+            scheduledDate: name
+          };
         }));
       return [...attemptTests, ...otherTests];
     }
 
     function renderPastPaperTests() {
       const tests = pastPaperTestsForStudent();
-      els.pastPaperList.innerHTML = tests.length ? tests.map(test => `
-        <div class="scheduled-card subject-accent" style="${subjectColorVars(test.subject)}">
+      const byAttempt = tests.reduce((groups, test) => {
+        groups[test.attempt] ||= [];
+        groups[test.attempt].push(test);
+        return groups;
+      }, {});
+      els.pastPaperList.innerHTML = Object.keys(byAttempt).length ? Object.entries(byAttempt).map(([attempt, attemptTests]) => `
+        <div class="scheduled-card">
           <div class="panel-title">
             <div>
-              <strong>${escapeHtml(test.name)}</strong>
-              <span>${escapeHtml(test.level)} • ${escapeHtml(subjectDisplayName(test.subject))} • ${test.questions.length} questions</span>
+              <strong>${escapeHtml(attempt)}</strong>
             </div>
-            <span class="subject-chip" style="${subjectColorVars(test.subject)}">${test.pendingImport ? "Pending import" : `${test.scoreable} answer keys`}</span>
           </div>
-          <div class="scheduled-meta">
-            <span><b>Attempt</b>${escapeHtml(test.scheduledDate)}</span>
-            <span><b>Questions</b>${test.questions.length}</span>
-            <span><b>Answer keys</b>${test.scoreable}</span>
-            <span><b>Status</b>${test.pendingImport ? "Need PDF/import" : "Ready"}</span>
+          <div class="past-paper-buttons">
+            ${attemptTests.map(test => `
+              <button type="button" data-past-paper="${test.id}" ${test.questions.length ? "" : "disabled"}>${escapeHtml(test.paper)}</button>
+            `).join("")}
           </div>
-          <span>${test.pendingImport ? "Upload/paste this attempt paper in Update Question Bank to activate it." : test.scoreable ? "Scoring will be shown where answer keys are available." : "Answer key pending for this paper."}</span>
-          <button type="button" data-past-paper="${test.id}" ${test.pendingImport ? "disabled" : ""}>${test.pendingImport ? "Pending Import" : "Start Past Paper"}</button>
         </div>
-      `).join("") : `<div class="notice">No past-paper tests are currently available for this level in the database.</div>`;
+      `).join("") : `<div class="notice">No past-paper tests are currently available for your level.</div>`;
     }
 
     function applyScheduledTest(test) {
@@ -20539,11 +20566,12 @@
     }
 
     function applyPastPaperTest(test) {
+      if (!test.questions.length) return;
       state.questionPoolOverride = test.questions;
       state.pendingTestMeta = {
         subject: test.subject,
         category: "Past Paper",
-        mode: test.name
+        mode: `${test.attempt} ${test.paper}`
       };
       els.levelSelect.value = test.level;
       populateSubjects();
