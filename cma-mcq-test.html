@@ -702,6 +702,64 @@
       text-decoration: none;
     }
 
+    .past-paper-admin-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .past-paper-admin-card {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      box-shadow: 0 10px 24px rgba(20, 32, 51, .06);
+    }
+
+    .paper-download-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+    }
+
+    .paper-download-card {
+      display: grid;
+      gap: 6px;
+      padding: 10px;
+      border: 1px solid var(--subject-border, var(--line));
+      border-radius: 8px;
+      background: linear-gradient(180deg, var(--subject-soft, #ffffff), #ffffff);
+      box-shadow: inset 4px 0 0 var(--subject-color, var(--blue));
+    }
+
+    .paper-download-card strong {
+      color: var(--subject-color, var(--blue));
+      font-size: 13px;
+      font-weight: 950;
+    }
+
+    .paper-download-card span {
+      min-height: 28px;
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 750;
+    }
+
+    .paper-download-card a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 0 10px;
+      border-radius: 8px;
+      background: var(--subject-color, var(--blue));
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
     .syllabus-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -2455,6 +2513,7 @@
         <div id="adminPanel">
         <div class="admin-tabs" id="adminTabs">
           <button type="button" class="admin-tab active" data-admin-tab="schedule">Schedule Test</button>
+          <button type="button" class="admin-tab" data-admin-tab="pastPapers">Past Papers</button>
           <button type="button" class="admin-tab" data-admin-tab="updateBank">Past Papers & Mock Upload</button>
           <button type="button" class="admin-tab" data-admin-tab="reviewBank">Review Question Bank</button>
           <button type="button" class="admin-tab" data-admin-tab="studentMaster">Student Master</button>
@@ -2544,6 +2603,15 @@
             </div>
             <div class="source-paper-grid" id="scheduleFoundationSourceList"></div>
           </div>
+        </section>
+
+        <section class="panel pad stack admin-panel hidden" data-admin-panel="pastPapers">
+          <div>
+            <h1>Past Papers</h1>
+            <p class="lead">Foundation question papers are arranged attempt-wise for admin download and upload preparation.</p>
+          </div>
+          <div class="notice">These buttons open/download the source PDFs. After downloading, copy questions into Past Papers & Mock Upload to add them to the test database.</div>
+          <div class="past-paper-admin-list" id="adminPastPaperLibrary"></div>
         </section>
 
         <section class="panel pad stack admin-panel hidden" data-admin-panel="updateBank">
@@ -19844,6 +19912,7 @@
       adminBatches: document.querySelector("#adminBatches"),
       adminScheduledTestList: document.querySelector("#adminScheduledTestList"),
       adminPastPaperAttemptList: document.querySelector("#adminPastPaperAttemptList"),
+      adminPastPaperLibrary: document.querySelector("#adminPastPaperLibrary"),
       saveSchedule: document.querySelector("#saveSchedule"),
       resetSchedule: document.querySelector("#resetSchedule"),
       adminAttempts: document.querySelector("#adminAttempts"),
@@ -20667,6 +20736,137 @@
       {
         attempt: "July 2023",
         url: "https://www.gyansagarclasses.com/cma-foundation-july-2023-exam-paper-solutions/"
+      }
+    ];
+    const foundationPastPaperLibrary = [
+      {
+        attempt: "June 2026",
+        sourceUrl: "https://www.gyansagarclasses.com/cma-foundation-june-2026-exam-paper-solutions/",
+        papers: [
+          {
+            paper: "Paper 1 & 2",
+            title: "Business Laws and Cost Accounting",
+            subject: "P1 - Law",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2026/06/CMA-Foundation-Business-Laws-and-Cost-Accounting-Paper-June-2026.pdf"
+          },
+          {
+            paper: "Paper 3 & 4",
+            title: "Business Mathematics and Economics",
+            subject: "P3 - Maths",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2026/06/CMA-Foundation-FBMS-FBEM-June-2026-Paper.pdf"
+          }
+        ]
+      },
+      {
+        attempt: "Dec 2025",
+        sourceUrl: "https://www.gyansagarclasses.com/cma-foundation-december-2025-exam-paper-solutions/",
+        papers: [
+          {
+            paper: "Paper 1",
+            title: "Business Laws and Business Communication",
+            subject: "P1 - Law",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2026/04/CMA-Foundation-Business-Laws-Paper-Dec-2025-Paper1.pdf"
+          },
+          {
+            paper: "Paper 2",
+            title: "Financial and Cost Accounting",
+            subject: "P2 - Accounts",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2026/04/CMA-Foundation-Fundamental-of-Financial-and-Cost-Accounts-Dec-2025-Paper2.pdf"
+          },
+          {
+            paper: "Paper 3 & 4",
+            title: "Business Mathematics, Statistics, Economics and Management",
+            subject: "P3 - Maths",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2026/04/CMA-Foundation-FBMS-FBEM-Dec-2025-Paper3-4.pdf"
+          }
+        ]
+      },
+      {
+        attempt: "June 2025",
+        sourceUrl: "https://www.gyansagarclasses.com/cma-foundation-june-2025-exam-paper-solutions/",
+        papers: [
+          {
+            paper: "Paper 1 & 2",
+            title: "Business Laws and Financial/Cost Accounting",
+            subject: "P1 - Law",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2025/08/CMA-Foundation-law-and-accounts-june-25.pdf"
+          },
+          {
+            paper: "Paper 3 & 4",
+            title: "Business Mathematics, Statistics, Economics and Management",
+            subject: "P3 - Maths",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2025/08/CMA-Foundation-Maths-and-economics-june-25.pdf"
+          }
+        ]
+      },
+      {
+        attempt: "Dec 2024",
+        sourceUrl: "https://www.gyansagarclasses.com/cma-foundation-december-2024-exam-paper-solutions/",
+        papers: [
+          {
+            paper: "Paper 1 & 2",
+            title: "Business Laws and Financial/Cost Accounting",
+            subject: "P1 - Law",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2024/12/CMA-FOUNDATION-LAW-AND-ACCOUNTS-DEC.-24.pdf"
+          },
+          {
+            paper: "Paper 3 & 4",
+            title: "Business Mathematics, Statistics, Economics and Management",
+            subject: "P3 - Maths",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2024/12/eco-maths-paper-15-dec.pdf"
+          }
+        ]
+      },
+      {
+        attempt: "June 2024",
+        sourceUrl: "https://www.gyansagarclasses.com/cma-foundation-june-2024-exam-paper-solutions/",
+        papers: [
+          {
+            paper: "Paper 1 & 2",
+            title: "Business Laws and Financial/Cost Accounting",
+            subject: "P1 - Law",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2026/04/CMA-Foundation-Business-Law-and-Cost-Accounts-June-24-Paper-1-2.pdf"
+          },
+          {
+            paper: "Paper 3 & 4",
+            title: "Business Mathematics, Statistics, Economics and Management",
+            subject: "P3 - Maths",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2026/04/CMA-Foundation-FBMS-FBEM-June-24-Paper-3-4.pdf"
+          }
+        ]
+      },
+      {
+        attempt: "Dec 2023",
+        sourceUrl: "https://www.gyansagarclasses.com/cma-foundation-december-2023-exam-question-paper-solutions/",
+        papers: [
+          {
+            paper: "Paper 1 & 2",
+            title: "Business Laws and Financial/Cost Accounting",
+            subject: "P1 - Law",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2023/12/PAPER-1-2.pdf"
+          },
+          {
+            paper: "Paper 3 & 4",
+            title: "Business Mathematics, Statistics, Economics and Management",
+            subject: "P3 - Maths",
+            url: "https://www.gyansagarclasses.com/wp-content/uploads/2023/12/Paper-3-4.pdf"
+          }
+        ]
+      },
+      {
+        attempt: "July 2023",
+        sourceUrl: "https://www.gyansagarclasses.com/cma-foundation-july-2023-exam-paper-solutions/",
+        papers: []
+      },
+      {
+        attempt: "June 2019",
+        sourceUrl: "https://icmai.in/ClntStudents/Question_Papers_June2019",
+        papers: icmaiPastPaperAttemptSources["June 2019"].papers.map(source => ({
+          paper: source.paper,
+          title: source.title,
+          subject: source.paper === "Paper 4" ? "P3 - Maths" : "P1 - Law",
+          url: source.url
+        }))
       }
     ];
     const defaultCloudEndpoint = "https://script.google.com/macros/s/AKfycbxDL2lcwwspDVrEWLprEvX9I07QSKOJNYDZuiIEPm0n59eik18meDzzbz1ZiTwEGmcX/exec";
@@ -21759,6 +21959,7 @@
       renderAdminScheduledTests(schedule);
       renderAdminPastPaperAttempts();
       renderGyanSagarFoundationSources();
+      renderAdminPastPaperLibrary();
       renderAdminBankReview();
       renderStudentMaster();
     }
@@ -21925,6 +22126,32 @@
       if (els.scheduleFoundationSourceList) els.scheduleFoundationSourceList.innerHTML = html;
     }
 
+    function renderAdminPastPaperLibrary() {
+      if (!els.adminPastPaperLibrary) return;
+      els.adminPastPaperLibrary.innerHTML = foundationPastPaperLibrary.map(attempt => `
+        <div class="past-paper-admin-card">
+          <div class="panel-title">
+            <div>
+              <strong>${escapeHtml(attempt.attempt)} Foundation Papers</strong>
+              <span>${attempt.papers.length ? `${attempt.papers.length} PDF file(s) linked` : "Open source page to download paper PDFs"}</span>
+            </div>
+            <a class="subject-chip" href="${escapeHtml(attempt.sourceUrl)}" target="_blank" rel="noopener">Source Page</a>
+          </div>
+          ${attempt.papers.length ? `
+            <div class="paper-download-grid">
+              ${attempt.papers.map(paper => `
+                <div class="paper-download-card" style="${subjectColorVars(paper.subject)}">
+                  <strong>${escapeHtml(paper.paper)}</strong>
+                  <span>${escapeHtml(paper.title)}</span>
+                  <a href="${escapeHtml(paper.url)}" target="_blank" rel="noopener" download>Download / Open PDF</a>
+                </div>
+              `).join("")}
+            </div>
+          ` : `<div class="notice">Direct PDF buttons are not stable for this attempt. Use Source Page to open/download papers.</div>`}
+        </div>
+      `).join("");
+    }
+
     function switchAdminTab(tabName) {
       els.adminTabs.querySelectorAll("[data-admin-tab]").forEach(tab => {
         tab.classList.toggle("active", tab.dataset.adminTab === tabName);
@@ -21934,6 +22161,7 @@
       });
       if (tabName === "reviewBank") renderAdminBankReview();
       if (tabName === "updateBank") renderGyanSagarFoundationSources();
+      if (tabName === "pastPapers") renderAdminPastPaperLibrary();
     }
 
     function allPaperNames(level = "All") {
