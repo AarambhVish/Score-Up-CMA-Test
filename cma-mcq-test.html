@@ -21121,6 +21121,33 @@
       els.preSubmitReview.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
+    function confirmFinalSubmit() {
+      const { answers } = collectCurrentAnswers();
+      const attempted = answers.filter(answer => answer.selected !== null).length;
+      const total = answers.length;
+      const unanswered = total - attempted;
+      const message = unanswered
+        ? `Submit this test now?\n\nAttempted: ${attempted}/${total}\nUnanswered: ${unanswered}\n\nAfter final submit, answers cannot be changed.`
+        : `Submit this test now?\n\nAttempted: ${attempted}/${total}\n\nAfter final submit, answers cannot be changed.`;
+      if (!confirm(message)) return;
+      submitTest(false);
+    }
+
+    function confirmCancelTest() {
+      const { answers } = collectCurrentAnswers();
+      const attempted = answers.filter(answer => answer.selected !== null).length;
+      const message = attempted
+        ? `Cancel this test?\n\nYou have attempted ${attempted} question(s). This attempt will not be submitted.`
+        : "Cancel this test? This attempt will not be submitted.";
+      if (!confirm(message)) return;
+      clearInterval(state.timerId);
+      if (state.questionObserver) state.questionObserver.disconnect();
+      state.testSubmitted = false;
+      els.testScreen.classList.add("hidden");
+      els.startScreen.classList.remove("hidden");
+      showStudentChoice();
+    }
+
     function submitTest(autoSubmitted = false) {
       if (state.testSubmitted) return;
       state.testSubmitted = true;
@@ -22371,7 +22398,7 @@
           : "Unanswered";
       renderPreSubmitReview();
     });
-    els.finalSubmitTest.addEventListener("click", () => submitTest(false));
+    els.finalSubmitTest.addEventListener("click", confirmFinalSubmit);
     els.confidenceSummary.addEventListener("click", event => {
       const button = event.target.closest("[data-pre-submit-filter]");
       if (!button) return;
@@ -22389,14 +22416,7 @@
       const target = document.querySelector(`[data-question-id="${button.dataset.reviewQuestion}"]`);
       if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
     });
-    els.cancelTest.addEventListener("click", () => {
-      clearInterval(state.timerId);
-      if (state.questionObserver) state.questionObserver.disconnect();
-      state.testSubmitted = false;
-      els.testScreen.classList.add("hidden");
-      els.startScreen.classList.remove("hidden");
-      showStudentChoice();
-    });
+    els.cancelTest.addEventListener("click", confirmCancelTest);
     els.newTest.addEventListener("click", () => {
       state.testSubmitted = false;
       els.resultScreen.classList.add("hidden");
