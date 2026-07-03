@@ -2537,6 +2537,13 @@
             </div>
             <div class="scheduled-list" id="adminPastPaperAttemptList"></div>
           </div>
+          <div class="admin-box full stack">
+            <div>
+              <h2>Foundation Paper Sources</h2>
+              <p class="small">Open source pages from admin, download papers, then upload questions in Past Papers & Mock Upload.</p>
+            </div>
+            <div class="source-paper-grid" id="scheduleFoundationSourceList"></div>
+          </div>
         </section>
 
         <section class="panel pad stack admin-panel hidden" data-admin-panel="updateBank">
@@ -19858,6 +19865,7 @@
       bankCategory: document.querySelector("#bankCategory"),
       bankAttempt: document.querySelector("#bankAttempt"),
       bankMockName: document.querySelector("#bankMockName"),
+      scheduleFoundationSourceList: document.querySelector("#scheduleFoundationSourceList"),
       gscFoundationSourceList: document.querySelector("#gscFoundationSourceList"),
       bulkQuestionText: document.querySelector("#bulkQuestionText"),
       bulkAssetNotes: document.querySelector("#bulkAssetNotes"),
@@ -21906,14 +21914,15 @@
     }
 
     function renderGyanSagarFoundationSources() {
-      if (!els.gscFoundationSourceList) return;
-      els.gscFoundationSourceList.innerHTML = gyanSagarFoundationSources.map(source => `
+      const html = gyanSagarFoundationSources.map(source => `
         <div class="source-paper-card">
           <strong>${escapeHtml(source.attempt)}</strong>
           <span>Paper 1, Paper 2, Paper 3, Paper 4 available from the source page.</span>
           <a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">Open Source Page</a>
         </div>
       `).join("");
+      if (els.gscFoundationSourceList) els.gscFoundationSourceList.innerHTML = html;
+      if (els.scheduleFoundationSourceList) els.scheduleFoundationSourceList.innerHTML = html;
     }
 
     function switchAdminTab(tabName) {
