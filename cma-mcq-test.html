@@ -568,6 +568,38 @@
       gap: 12px;
     }
 
+    .past-paper-attempt-card {
+      display: grid;
+      width: 100%;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      box-shadow: 0 10px 24px rgba(20, 32, 51, .06);
+    }
+
+    .past-paper-attempt-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .past-paper-attempt-head strong {
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 950;
+    }
+
+    .past-paper-attempt-head span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
     .past-paper-buttons {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -595,6 +627,37 @@
       color: var(--muted);
       background: #f2f5f8;
       box-shadow: none;
+    }
+
+    .admin-source-links {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .admin-source-links a {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--subject-border, var(--line));
+      border-radius: 8px;
+      color: var(--subject-color, var(--blue));
+      background: var(--subject-soft, #eef5ff);
+      font-size: 12px;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .admin-source-links a:hover {
+      box-shadow: 0 8px 18px rgba(20, 32, 51, .08);
+      transform: translateY(-1px);
+    }
+
+    .admin-source-note {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
     }
 
     .syllabus-grid {
@@ -1821,6 +1884,7 @@
       .analysis-grid,
       .badge-list,
       .leaderboard-filters,
+      .admin-source-links,
       .past-paper-buttons,
       .student-choice,
       .student-dashboard,
@@ -20478,6 +20542,33 @@
     ];
 
     const icmaiPastPaperSourceUrl = "https://icmai.in/ClntStudents/Question_Papers_December2025";
+    const icmaiPastPaperAttemptSources = {
+      "June 2019": {
+        pageUrl: "https://icmai.in/ClntStudents/Question_Papers_June2019",
+        papers: [
+          {
+            paper: "Paper 1",
+            title: "Fundamentals of Economics and Management",
+            url: "https://dwpivt501gtb6.cloudfront.net/upload/students/QuestionPaper/syllabus2016/June19/Paper1.pdf"
+          },
+          {
+            paper: "Paper 2",
+            title: "Fundamentals of Accounting",
+            url: "https://dwpivt501gtb6.cloudfront.net/upload/students/QuestionPaper/syllabus2016/June19/Paper2.pdf"
+          },
+          {
+            paper: "Paper 3",
+            title: "Fundamentals of Laws and Ethics",
+            url: "https://dwpivt501gtb6.cloudfront.net/upload/students/QuestionPaper/syllabus2016/June19/Paper3.pdf"
+          },
+          {
+            paper: "Paper 4",
+            title: "Fundamentals of Business Mathematics and Statistics",
+            url: "https://dwpivt501gtb6.cloudfront.net/upload/students/QuestionPaper/syllabus2016/June19/Paper4.pdf"
+          }
+        ]
+      }
+    };
     const defaultCloudEndpoint = "https://script.google.com/macros/s/AKfycbxDL2lcwwspDVrEWLprEvX9I07QSKOJNYDZuiIEPm0n59eik18meDzzbz1ZiTwEGmcX/exec";
     const rememberedStudentKey = "cmaRememberedStudent";
     const studentPageKey = "cmaStudentPage";
@@ -20545,11 +20636,10 @@
         return groups;
       }, {});
       els.pastPaperList.innerHTML = Object.keys(byAttempt).length ? Object.entries(byAttempt).map(([attempt, attemptTests]) => `
-        <div class="scheduled-card">
-          <div class="panel-title">
-            <div>
-              <strong>${escapeHtml(attempt)}</strong>
-            </div>
+        <div class="past-paper-attempt-card">
+          <div class="past-paper-attempt-head">
+            <strong>${escapeHtml(attempt)}</strong>
+            <span>CMA Foundation</span>
           </div>
           <div class="past-paper-buttons">
             ${attemptTests.map(test => `
@@ -21692,7 +21782,8 @@
           (question.attempt === attempt || attemptFromSource(question.source) === attempt)
         );
         const papers = [...new Set(questions.map(question => question.subject).filter(Boolean))];
-        return { attempt, questions, papers, answerKeys: questions.filter(question => Number.isInteger(question.answer)).length };
+        const source = icmaiPastPaperAttemptSources[attempt] || null;
+        return { attempt, questions, papers, source, answerKeys: questions.filter(question => Number.isInteger(question.answer)).length };
       });
       els.adminPastPaperAttemptList.innerHTML = tests.map(test => `
           <div class="scheduled-card subject-accent" style="${subjectColorVars(test.papers[0] || test.attempt)}">
@@ -21709,7 +21800,14 @@
             <span><b>Questions</b>${test.questions.length}</span>
             <span><b>Answer keys</b>${test.answerKeys}</span>
           </div>
-          <span>Source: <a href="${icmaiPastPaperSourceUrl}" target="_blank" rel="noopener">ICMAI Question Papers</a></span>
+          ${test.source ? `
+            <span class="admin-source-note">Admin source downloads: <a href="${escapeHtml(test.source.pageUrl)}" target="_blank" rel="noopener">ICMAI ${escapeHtml(test.attempt)} page</a></span>
+            <div class="admin-source-links">
+              ${test.source.papers.map(source => `
+                <a href="${escapeHtml(source.url)}" target="_blank" rel="noopener" title="${escapeHtml(source.title)}">${escapeHtml(source.paper)}</a>
+              `).join("")}
+            </div>
+          ` : `<span>Source: <a href="${icmaiPastPaperSourceUrl}" target="_blank" rel="noopener">ICMAI Question Papers</a></span>`}
         </div>
       `).join("");
     }
