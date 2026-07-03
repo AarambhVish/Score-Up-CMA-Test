@@ -466,6 +466,37 @@
       gap: 10px;
     }
 
+    .student-page-tabs {
+      position: sticky;
+      top: 74px;
+      z-index: 6;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .94);
+      box-shadow: 0 8px 20px rgba(20, 32, 51, .06);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .student-page-tabs button {
+      flex: 0 0 auto;
+      min-height: 36px;
+      padding: 0 12px;
+      color: var(--muted);
+      background: #edf2f7;
+      box-shadow: none;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .student-page-tabs button.active {
+      color: var(--white);
+      background: var(--button-bg);
+    }
+
     .choice-card,
     .scheduled-card {
       display: grid;
@@ -1785,6 +1816,16 @@
         min-height: 72px;
       }
 
+      .student-page-tabs {
+        top: 106px;
+        padding: 6px;
+      }
+
+      .student-page-tabs button {
+        min-height: 34px;
+        padding: 0 10px;
+      }
+
       .metric {
         padding: 10px;
       }
@@ -1934,6 +1975,13 @@
         </div>
 
         <div id="startScreen" class="stack hidden">
+          <nav class="student-page-tabs" id="studentPageTabs" aria-label="Student pages">
+            <button type="button" data-student-page="dashboard" class="active">Dashboard</button>
+            <button type="button" data-student-page="builder">Build Test</button>
+            <button type="button" data-student-page="scheduled">Scheduled</button>
+            <button type="button" data-student-page="past">Past Papers</button>
+            <button type="button" data-student-page="syllabus">Syllabus</button>
+          </nav>
           <section class="panel pad stack" id="studentChoiceScreen">
             <div>
               <h1>Student Dashboard</h1>
@@ -19562,6 +19610,7 @@
       loginScreen: document.querySelector("#loginScreen"),
       studentContext: document.querySelector("#studentContext"),
       builderStudentContext: document.querySelector("#builderStudentContext"),
+      studentPageTabs: document.querySelector("#studentPageTabs"),
       studentChoiceScreen: document.querySelector("#studentChoiceScreen"),
       chooseBuildTest: document.querySelector("#chooseBuildTest"),
       chooseScheduledTest: document.querySelector("#chooseScheduledTest"),
@@ -20204,7 +20253,27 @@
       `;
     }
 
+    function setStudentPage(page) {
+      localStorage.setItem(studentPageKey, page);
+      if (!els.studentPageTabs) return;
+      els.studentPageTabs.querySelectorAll("[data-student-page]").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.studentPage === page);
+      });
+    }
+
+    function navigateStudentPage(page = "dashboard") {
+      const pages = {
+        dashboard: showStudentChoice,
+        builder: showBuilder,
+        scheduled: showScheduledTests,
+        past: showPastPapers,
+        syllabus: showSyllabusOverview
+      };
+      (pages[page] || pages.dashboard)();
+    }
+
     function showStudentChoice() {
+      setStudentPage("dashboard");
       els.studentChoiceScreen.classList.remove("hidden");
       els.builderScreen.classList.add("hidden");
       els.scheduledTestScreen.classList.add("hidden");
@@ -20217,6 +20286,7 @@
     }
 
     function showBuilder() {
+      setStudentPage("builder");
       els.studentChoiceScreen.classList.add("hidden");
       els.scheduledTestScreen.classList.add("hidden");
       els.pastPaperScreen.classList.add("hidden");
@@ -20229,6 +20299,7 @@
     }
 
     function showScheduledTests() {
+      setStudentPage("scheduled");
       els.studentChoiceScreen.classList.add("hidden");
       els.builderScreen.classList.add("hidden");
       els.scheduledTestScreen.classList.remove("hidden");
@@ -20239,6 +20310,7 @@
     }
 
     function showPastPapers() {
+      setStudentPage("past");
       els.studentChoiceScreen.classList.add("hidden");
       els.builderScreen.classList.add("hidden");
       els.scheduledTestScreen.classList.add("hidden");
@@ -20249,6 +20321,7 @@
     }
 
     function showSyllabusOverview() {
+      setStudentPage("syllabus");
       els.studentChoiceScreen.classList.add("hidden");
       els.builderScreen.classList.add("hidden");
       els.scheduledTestScreen.classList.add("hidden");
@@ -20370,6 +20443,7 @@
     const icmaiPastPaperSourceUrl = "https://icmai.in/ClntStudents/Question_Papers_December2025";
     const defaultCloudEndpoint = "https://script.google.com/macros/s/AKfycbxDL2lcwwspDVrEWLprEvX9I07QSKOJNYDZuiIEPm0n59eik18meDzzbz1ZiTwEGmcX/exec";
     const rememberedStudentKey = "cmaRememberedStudent";
+    const studentPageKey = "cmaStudentPage";
 
     function attemptFromSource(source) {
       const text = String(source || "");
@@ -20549,7 +20623,7 @@
       renderLeaderboard();
       els.loginScreen.classList.add("hidden");
       els.startScreen.classList.remove("hidden");
-      showStudentChoice();
+      navigateStudentPage(localStorage.getItem(studentPageKey) || "dashboard");
       updateSummary();
     }
 
@@ -22258,6 +22332,10 @@
     els.chooseScheduledTest.addEventListener("click", showScheduledTests);
     els.choosePastPapers.addEventListener("click", showPastPapers);
     els.chooseSyllabusOverview.addEventListener("click", showSyllabusOverview);
+    els.studentPageTabs.addEventListener("click", event => {
+      const tab = event.target.closest("[data-student-page]");
+      if (tab) navigateStudentPage(tab.dataset.studentPage);
+    });
     els.backToTestChoice.addEventListener("click", showStudentChoice);
     els.backFromPastPapers.addEventListener("click", showStudentChoice);
     els.backFromSyllabusOverview.addEventListener("click", showStudentChoice);
