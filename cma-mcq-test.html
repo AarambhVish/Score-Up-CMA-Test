@@ -2413,7 +2413,7 @@
         <div id="adminPanel">
         <div class="admin-tabs" id="adminTabs">
           <button type="button" class="admin-tab active" data-admin-tab="schedule">Schedule Test</button>
-          <button type="button" class="admin-tab" data-admin-tab="updateBank">Update Question Bank</button>
+          <button type="button" class="admin-tab" data-admin-tab="updateBank">Past Papers & Mock Upload</button>
           <button type="button" class="admin-tab" data-admin-tab="reviewBank">Review Question Bank</button>
           <button type="button" class="admin-tab" data-admin-tab="studentMaster">Student Master</button>
           <button type="button" class="admin-tab" data-admin-tab="records">Records</button>
@@ -2499,10 +2499,17 @@
 
         <section class="panel pad stack admin-panel hidden" data-admin-panel="updateBank">
           <div>
-            <h1>Update Question Bank</h1>
-            <p class="lead">Paste one or many MCQs, review them, and save them to the local question bank.</p>
+            <h1>Past Papers & Mock Test Paper Upload</h1>
+            <p class="lead">Paste one or many MCQs, review them, and save them as past papers, mock test papers, or normal question-bank questions.</p>
           </div>
           <div class="fields">
+            <label>Upload Type
+              <select id="bankUploadType">
+                <option value="Question Bank">Question Bank</option>
+                <option value="Past Paper">Past Paper</option>
+                <option value="Mock Test Paper">Mock Test Paper</option>
+              </select>
+            </label>
             <label>Level
               <select id="bankLevel"></select>
             </label>
@@ -2532,6 +2539,9 @@
                 <option>Dec 2021</option>
                 <option>June 2021</option>
               </select>
+            </label>
+            <label>Mock Test Name
+              <input id="bankMockName" placeholder="Mock Test 1, Revision Mock, Full Syllabus Mock">
             </label>
           </div>
           <div class="admin-box full stack">
@@ -19793,10 +19803,12 @@
       cloudLoadNow: document.querySelector("#cloudLoadNow"),
       cloudStatus: document.querySelector("#cloudStatus"),
       bankLevel: document.querySelector("#bankLevel"),
+      bankUploadType: document.querySelector("#bankUploadType"),
       bankSubject: document.querySelector("#bankSubject"),
       bankTopic: document.querySelector("#bankTopic"),
       bankCategory: document.querySelector("#bankCategory"),
       bankAttempt: document.querySelector("#bankAttempt"),
+      bankMockName: document.querySelector("#bankMockName"),
       bulkQuestionText: document.querySelector("#bulkQuestionText"),
       bulkAssetNotes: document.querySelector("#bulkAssetNotes"),
       bulkImagePasteZone: document.querySelector("#bulkImagePasteZone"),
@@ -22049,7 +22061,9 @@
       }
       const now = Date.now();
       const commonAssetNotes = els.bulkAssetNotes.value.trim();
-      const attempt = els.bankAttempt.value;
+      const uploadType = els.bankUploadType.value;
+      const attempt = uploadType === "Past Paper" ? els.bankAttempt.value : "";
+      const mockName = uploadType === "Mock Test Paper" ? cleanShortText(els.bankMockName.value || "Mock Test Paper") : "";
       const questions = parsed.map((item, index) => cleanQuestionRecord({
         id: `admin-bulk-${now}-${index}`,
         level: els.bankLevel.value,
@@ -22063,15 +22077,18 @@
         assetNotes: [...item.assetNotes, commonAssetNotes].filter(Boolean).join("\n"),
         assetImages: [...state.bulkAssetImages],
         attempt,
-        source: attempt
-          ? `CMA Foundation ${attempt} Past Paper - ${els.bankSubject.value} - Q${index + 1}`
-          : item.answer === null ? "Admin Question Bank - Answer Pending" : "Admin Question Bank"
+        source: uploadType === "Past Paper"
+          ? `CMA Foundation ${attempt || "Unassigned Attempt"} Past Paper - ${els.bankSubject.value} - Q${index + 1}`
+          : uploadType === "Mock Test Paper"
+            ? `${mockName} - ${els.bankSubject.value} - Q${index + 1}`
+            : item.answer === null ? "Admin Question Bank - Answer Pending" : "Admin Question Bank"
       }));
       const customQuestions = [...getCustomQuestionBank(), ...questions];
       saveCustomQuestionBank(customQuestions);
       questionBank.push(...questions);
       els.bulkQuestionText.value = "";
       els.bulkAssetNotes.value = "";
+      els.bankMockName.value = "";
       state.bulkAssetImages = [];
       renderBulkImagePreview();
       renderSavedBulkQuestions(questions);
