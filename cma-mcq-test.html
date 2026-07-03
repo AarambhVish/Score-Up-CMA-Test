@@ -760,6 +760,40 @@
       text-decoration: none;
     }
 
+    .past-upload-form {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    .answer-key-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+      gap: 8px;
+    }
+
+    .answer-key-cell {
+      display: grid;
+      gap: 4px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .answer-key-cell span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .answer-key-cell select {
+      min-height: 32px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
     .syllabus-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -1985,6 +2019,7 @@
       .badge-list,
       .leaderboard-filters,
       .admin-source-links,
+      .past-upload-form,
       .past-paper-buttons,
       .student-choice,
       .student-dashboard,
@@ -2514,7 +2549,7 @@
         <div class="admin-tabs" id="adminTabs">
           <button type="button" class="admin-tab active" data-admin-tab="schedule">Schedule Test</button>
           <button type="button" class="admin-tab" data-admin-tab="pastPapers">Past Papers</button>
-          <button type="button" class="admin-tab" data-admin-tab="updateBank">Past Papers & Mock Upload</button>
+          <button type="button" class="admin-tab" data-admin-tab="updateBank">Question Bank Upload</button>
           <button type="button" class="admin-tab" data-admin-tab="reviewBank">Review Question Bank</button>
           <button type="button" class="admin-tab" data-admin-tab="studentMaster">Student Master</button>
           <button type="button" class="admin-tab" data-admin-tab="records">Records</button>
@@ -2596,34 +2631,88 @@
             </div>
             <div class="scheduled-list" id="adminPastPaperAttemptList"></div>
           </div>
-          <div class="admin-box full stack">
-            <div>
-              <h2>Foundation Paper Sources</h2>
-              <p class="small">Open source pages from admin, download papers, then upload questions in Past Papers & Mock Upload.</p>
-            </div>
-            <div class="source-paper-grid" id="scheduleFoundationSourceList"></div>
-          </div>
         </section>
 
         <section class="panel pad stack admin-panel hidden" data-admin-panel="pastPapers">
           <div>
             <h1>Past Papers</h1>
-            <p class="lead">Foundation question papers are arranged attempt-wise for admin download and upload preparation.</p>
+            <p class="lead">Upload past paper PDFs attempt-wise, then review questions and mark answers.</p>
           </div>
-          <div class="notice">These buttons open/download the source PDFs. After downloading, copy questions into Past Papers & Mock Upload to add them to the test database.</div>
-          <div class="past-paper-admin-list" id="adminPastPaperLibrary"></div>
+          <div class="admin-box full stack">
+            <div>
+              <h2>Upload Past Paper</h2>
+              <p class="small">Select attempt and paper number, upload PDF, then review the answer key before saving.</p>
+            </div>
+            <div class="past-upload-form">
+              <label>Attempt
+                <select id="pastUploadAttempt">
+                  <option>June 2026</option>
+                  <option>Dec 2025</option>
+                  <option>June 2025</option>
+                  <option>Dec 2024</option>
+                  <option>June 2024</option>
+                  <option>Dec 2023</option>
+                  <option>July 2023</option>
+                  <option>June 2019</option>
+                </select>
+              </label>
+              <label>Paper No.
+                <select id="pastUploadPaper">
+                  <option value="Paper 1">Paper 1</option>
+                  <option value="Paper 2">Paper 2</option>
+                  <option value="Paper 3">Paper 3</option>
+                  <option value="Paper 4">Paper 4</option>
+                </select>
+              </label>
+              <label>Upload PDF
+                <input id="pastUploadFile" type="file" accept="application/pdf">
+              </label>
+              <button type="button" id="reviewPastUpload">Review</button>
+            </div>
+            <div class="notice hidden" id="pastUploadNotice"></div>
+          </div>
+          <div class="admin-box full stack hidden" id="pastUploadReviewBox">
+            <div class="panel-title">
+              <div>
+                <h2>Review Uploaded Paper</h2>
+                <p class="small" id="pastUploadReviewMeta">No PDF selected.</p>
+              </div>
+              <button type="button" id="savePastUpload" class="secondary">Save Past Paper</button>
+            </div>
+            <label>Paste / type extracted questions for review
+              <textarea id="pastUploadQuestionText" placeholder="Paste questions extracted from the uploaded PDF here if required."></textarea>
+            </label>
+            <div>
+              <h2>Answers for Each Question</h2>
+              <p class="small">Select correct option for each question. Blank answers can be completed later.</p>
+            </div>
+            <div class="answer-key-grid" id="pastAnswerKeyGrid"></div>
+          </div>
+          <div class="admin-box full stack">
+            <div>
+              <h2>Uploaded Past Papers</h2>
+              <p class="small">Saved uploads are listed attempt-wise for admin review.</p>
+            </div>
+            <div class="scheduled-list" id="pastUploadList"></div>
+          </div>
+          <div class="admin-box full stack">
+            <div>
+              <h2>Available Source PDFs</h2>
+              <p class="small">Use these source buttons only to download/open papers before uploading them above.</p>
+            </div>
+            <div class="past-paper-admin-list" id="adminPastPaperLibrary"></div>
+          </div>
         </section>
 
         <section class="panel pad stack admin-panel hidden" data-admin-panel="updateBank">
           <div>
-            <h1>Past Papers & Mock Test Paper Upload</h1>
-            <p class="lead">Paste one or many MCQs, review them, and save them as past papers, mock test papers, or normal question-bank questions.</p>
+            <h1>Question Bank Upload</h1>
+            <p class="lead">Paste one or many MCQs, review them, and save them as normal question-bank questions or mock test papers.</p>
           </div>
           <div class="fields">
             <label>Upload Type
               <select id="bankUploadType">
                 <option value="Question Bank">Question Bank</option>
-                <option value="Past Paper">Past Paper</option>
                 <option value="Mock Test Paper">Mock Test Paper</option>
               </select>
             </label>
@@ -2642,31 +2731,9 @@
                 <option>Practical</option>
               </select>
             </label>
-            <label>Past Paper Attempt
-              <select id="bankAttempt">
-                <option value="">Not a past paper</option>
-                <option>Dec 2025</option>
-                <option>June 2025</option>
-                <option>Dec 2024</option>
-                <option>June 2024</option>
-                <option>Dec 2023</option>
-                <option>June 2023</option>
-                <option>Dec 2022</option>
-                <option>June 2022</option>
-                <option>Dec 2021</option>
-                <option>June 2021</option>
-              </select>
-            </label>
             <label>Mock Test Name
               <input id="bankMockName" placeholder="Mock Test 1, Revision Mock, Full Syllabus Mock">
             </label>
-          </div>
-          <div class="admin-box full stack">
-            <div>
-              <h2>Foundation Paper Sources</h2>
-              <p class="small">Open the attempt page, download the paper PDF, then paste the MCQs below for admin review and saving.</p>
-            </div>
-            <div class="source-paper-grid" id="gscFoundationSourceList"></div>
           </div>
           <div class="admin-box full stack">
             <div>
@@ -19775,7 +19842,8 @@
       "cmaDeletedQuestionIds",
       "cmaProfessorMaster",
       "cmaStudentProgress",
-      "cmaStreaks"
+      "cmaStreaks",
+      "cmaPastPaperUploads"
     ];
 
     let cloudSyncTimer = null;
@@ -19801,6 +19869,7 @@
       bulkAssetImages: [],
       cloudSyncing: false,
       testSubmitted: false,
+      activePastUploadId: null,
       startedAt: null,
       timeLimitSeconds: 0,
       remainingSeconds: 0,
@@ -19913,6 +19982,17 @@
       adminScheduledTestList: document.querySelector("#adminScheduledTestList"),
       adminPastPaperAttemptList: document.querySelector("#adminPastPaperAttemptList"),
       adminPastPaperLibrary: document.querySelector("#adminPastPaperLibrary"),
+      pastUploadAttempt: document.querySelector("#pastUploadAttempt"),
+      pastUploadPaper: document.querySelector("#pastUploadPaper"),
+      pastUploadFile: document.querySelector("#pastUploadFile"),
+      reviewPastUpload: document.querySelector("#reviewPastUpload"),
+      pastUploadNotice: document.querySelector("#pastUploadNotice"),
+      pastUploadReviewBox: document.querySelector("#pastUploadReviewBox"),
+      pastUploadReviewMeta: document.querySelector("#pastUploadReviewMeta"),
+      pastUploadQuestionText: document.querySelector("#pastUploadQuestionText"),
+      pastAnswerKeyGrid: document.querySelector("#pastAnswerKeyGrid"),
+      savePastUpload: document.querySelector("#savePastUpload"),
+      pastUploadList: document.querySelector("#pastUploadList"),
       saveSchedule: document.querySelector("#saveSchedule"),
       resetSchedule: document.querySelector("#resetSchedule"),
       adminAttempts: document.querySelector("#adminAttempts"),
@@ -21960,6 +22040,7 @@
       renderAdminPastPaperAttempts();
       renderGyanSagarFoundationSources();
       renderAdminPastPaperLibrary();
+      renderPastUploadList();
       renderAdminBankReview();
       renderStudentMaster();
     }
@@ -22126,6 +22207,120 @@
       if (els.scheduleFoundationSourceList) els.scheduleFoundationSourceList.innerHTML = html;
     }
 
+    function getPastPaperUploads() {
+      return JSON.parse(localStorage.getItem("cmaPastPaperUploads") || "[]");
+    }
+
+    function savePastPaperUploads(uploads) {
+      localStorage.setItem("cmaPastPaperUploads", JSON.stringify(uploads));
+      scheduleCloudPush();
+    }
+
+    function renderPastAnswerKeyGrid(answers = []) {
+      if (!els.pastAnswerKeyGrid) return;
+      els.pastAnswerKeyGrid.innerHTML = Array.from({ length: 50 }, (_, index) => {
+        const value = answers[index] || "";
+        return `
+          <label class="answer-key-cell"> 
+            <span>Q${index + 1}</span>
+            <select data-past-answer="${index}">
+              <option value="" ${value === "" ? "selected" : ""}>Blank</option>
+              <option value="A" ${value === "A" ? "selected" : ""}>A</option>
+              <option value="B" ${value === "B" ? "selected" : ""}>B</option>
+              <option value="C" ${value === "C" ? "selected" : ""}>C</option>
+              <option value="D" ${value === "D" ? "selected" : ""}>D</option>
+            </select>
+          </label>
+        `;
+      }).join("");
+    }
+
+    function pastAnswerKeyValues() {
+      return [...els.pastAnswerKeyGrid.querySelectorAll("[data-past-answer]")]
+        .map(select => select.value);
+    }
+
+    function reviewPastUpload() {
+      const file = els.pastUploadFile.files[0];
+      if (!file) {
+        els.pastUploadNotice.textContent = "Please upload/select a PDF first.";
+        els.pastUploadNotice.classList.remove("hidden");
+        return;
+      }
+      state.activePastUploadId = null;
+      els.pastUploadNotice.classList.add("hidden");
+      els.pastUploadReviewBox.classList.remove("hidden");
+      els.pastUploadReviewMeta.textContent = `${els.pastUploadAttempt.value} • ${els.pastUploadPaper.value} • ${file.name}`;
+      renderPastAnswerKeyGrid();
+    }
+
+    function savePastUpload() {
+      const file = els.pastUploadFile.files[0];
+      const uploads = getPastPaperUploads();
+      const existingIndex = uploads.findIndex(item => item.id === state.activePastUploadId);
+      const existing = existingIndex >= 0 ? uploads[existingIndex] : null;
+      if (!file && !existing) {
+        els.pastUploadNotice.textContent = "Please upload/select a PDF before saving.";
+        els.pastUploadNotice.classList.remove("hidden");
+        return;
+      }
+      const record = {
+        id: existing?.id || `past-upload-${Date.now()}`,
+        attempt: els.pastUploadAttempt.value,
+        paper: els.pastUploadPaper.value,
+        fileName: file?.name || existing.fileName,
+        fileSize: file?.size || existing.fileSize || 0,
+        questionText: els.pastUploadQuestionText.value.trim(),
+        answers: pastAnswerKeyValues(),
+        savedAt: new Date().toISOString()
+      };
+      if (existingIndex >= 0) {
+        uploads[existingIndex] = record;
+        savePastPaperUploads(uploads);
+      } else {
+        savePastPaperUploads([record, ...uploads]);
+      }
+      els.pastUploadQuestionText.value = "";
+      els.pastUploadFile.value = "";
+      state.activePastUploadId = null;
+      els.pastUploadReviewBox.classList.add("hidden");
+      els.pastUploadNotice.textContent = "Past paper saved for admin review.";
+      els.pastUploadNotice.classList.remove("hidden");
+      renderPastUploadList();
+    }
+
+    function renderPastUploadList() {
+      if (!els.pastUploadList) return;
+      const uploads = getPastPaperUploads();
+      els.pastUploadList.innerHTML = uploads.length ? uploads.map(upload => {
+        const answered = (upload.answers || []).filter(Boolean).length;
+        return `
+          <div class="scheduled-card">
+            <div class="panel-title">
+              <div>
+                <strong>${escapeHtml(upload.attempt)} • ${escapeHtml(upload.paper)}</strong>
+                <span>${escapeHtml(upload.fileName || "PDF uploaded")} • ${answered}/50 answers marked</span>
+              </div>
+              <button type="button" class="secondary" data-review-past-upload="${escapeHtml(upload.id)}">Review</button>
+            </div>
+          </div>
+        `;
+      }).join("") : `<div class="notice">No past paper PDF uploaded yet.</div>`;
+    }
+
+    function openSavedPastUpload(id) {
+      const upload = getPastPaperUploads().find(item => item.id === id);
+      if (!upload) return;
+      state.activePastUploadId = upload.id;
+      els.pastUploadAttempt.value = upload.attempt;
+      els.pastUploadPaper.value = upload.paper;
+      els.pastUploadQuestionText.value = upload.questionText || "";
+      els.pastUploadReviewMeta.textContent = `${upload.attempt} • ${upload.paper} • ${upload.fileName || "Saved upload"}`;
+      els.pastUploadReviewBox.classList.remove("hidden");
+      renderPastAnswerKeyGrid(upload.answers || []);
+      els.pastUploadReviewBox.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
     function renderAdminPastPaperLibrary() {
       if (!els.adminPastPaperLibrary) return;
       els.adminPastPaperLibrary.innerHTML = foundationPastPaperLibrary.map(attempt => `
@@ -22161,7 +22356,10 @@
       });
       if (tabName === "reviewBank") renderAdminBankReview();
       if (tabName === "updateBank") renderGyanSagarFoundationSources();
-      if (tabName === "pastPapers") renderAdminPastPaperLibrary();
+      if (tabName === "pastPapers") {
+        renderAdminPastPaperLibrary();
+        renderPastUploadList();
+      }
     }
 
     function allPaperNames(level = "All") {
@@ -22735,6 +22933,12 @@
     els.bulkImagePasteZone.addEventListener("paste", handleBulkImagePaste);
     els.parseBulkQuestions.addEventListener("click", renderBulkQuestionPreview);
     els.saveBulkQuestions.addEventListener("click", saveBulkQuestions);
+    els.reviewPastUpload.addEventListener("click", reviewPastUpload);
+    els.savePastUpload.addEventListener("click", savePastUpload);
+    els.pastUploadList.addEventListener("click", event => {
+      const reviewButton = event.target.closest("[data-review-past-upload]");
+      if (reviewButton) openSavedPastUpload(reviewButton.dataset.reviewPastUpload);
+    });
     els.bulkQuestionPreview.addEventListener("click", event => {
       const saveButton = event.target.closest("[data-save-question]");
       if (saveButton) {
